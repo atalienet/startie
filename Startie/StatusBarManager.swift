@@ -81,29 +81,18 @@ class StatusBarManager: NSObject, NSMenuDelegate {
     @objc private func restartApp() {
         print("Restart app triggered")
         
-        // Use NSWorkspace for more reliable app launching
-        let workspace = NSWorkspace.shared
-        let bundleURL = Bundle.main.bundleURL
+        // Get the path to the app bundle
+        let bundlePath = Bundle.main.bundleURL.path
         
-        // Launch new instance first, then quit current instance
-        do {
-            let configuration = NSWorkspace.OpenConfiguration()
-            configuration.activates = true
-            
-            workspace.openApplication(at: bundleURL,
-                                     configuration: configuration) { newApp, error in
-                if let error = error {
-                    print("Failed to launch new instance: \(error)")
-                    return
-                }
-                
-                print("Successfully launched new instance, terminating current instance...")
-                
-                // Give the new instance time to fully launch before terminating this one
-                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
-                    NSApp.terminate(nil)
-                }
-            }
+        // Set up a Process to run the 'open -n' command
+        let task = Process()
+        task.launchPath = "/usr/bin/open"
+        task.arguments = ["-n", bundlePath]
+        task.launch()
+        
+        // Wait briefly to ensure the new instance starts, then terminate the current one
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
+            NSApp.terminate(nil)
         }
     }
     
