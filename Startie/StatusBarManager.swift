@@ -1,14 +1,18 @@
 import SwiftUI
 import AppKit
 
-class StatusBarManager: NSObject {
+class StatusBarManager: NSObject, NSMenuDelegate {
     private var statusItem: NSStatusItem!
+    private var rightClickMenu: NSMenu!
     
     override init() {
         super.init()
         
         // Create the status bar item
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.squareLength)
+        
+        // Set up right-click menu once at initialization
+        setupRightClickMenu()
         
         if let button = statusItem.button {
             // Set the icon (using app icon)
@@ -17,10 +21,26 @@ class StatusBarManager: NSObject {
                 button.image = resizedIcon
             }
             
-            // Configure the button with precise action handling
+            // Use a different approach for handling clicks
+            button.sendAction(on: [.leftMouseUp, .rightMouseUp])
             button.target = self
             button.action = #selector(statusBarButtonClicked(_:))
         }
+    }
+    
+    private func setupRightClickMenu() {
+        rightClickMenu = NSMenu()
+        rightClickMenu.delegate = self
+        
+        // Add Restart option
+        let restartItem = NSMenuItem(title: "Restart", action: #selector(restartApp), keyEquivalent: "r")
+        restartItem.target = self
+        rightClickMenu.addItem(restartItem)
+        
+        // Add Quit option
+        let quitItem = NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q")
+        quitItem.target = self
+        rightClickMenu.addItem(quitItem)
     }
     
     @objc private func statusBarButtonClicked(_ sender: NSStatusBarButton) {
@@ -28,8 +48,7 @@ class StatusBarManager: NSObject {
         
         if event.type == .rightMouseUp {
             showContextMenu()
-        } else {
-            // Request window creation directly - simpler approach
+        } else if event.type == .leftMouseUp {
             requestWindowCreation()
         }
     }
@@ -41,50 +60,50 @@ class StatusBarManager: NSObject {
     }
     
     private func showContextMenu() {
-        let menu = NSMenu()
+        statusItem.menu = rightClickMenu
+        statusItem.button?.performClick(nil)
         
-        // Add a "Show" menu item
-        let showItem = NSMenuItem(title: "Show", action: #selector(showMainWindowFromMenu), keyEquivalent: "s")
-        showItem.target = self
-        menu.addItem(showItem)
-        
-        let restartItem = NSMenuItem(title: "Restart", action: #selector(restartApp), keyEquivalent: "r")
-        restartItem.target = self
-        menu.addItem(restartItem)
-        
-        menu.addItem(NSMenuItem.separator())
-        
-        let quitItem = NSMenuItem(title: "Quit", action: #selector(quitApp), keyEquivalent: "q")
-        quitItem.target = self
-        menu.addItem(quitItem)
-        
-        // Present the menu
-        statusItem.menu = menu
-        
-        // Reset the menu after it's displayed
-        DispatchQueue.main.async { [weak self] in
+        // Reset the menu after a short delay
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) { [weak self] in
             self?.statusItem.menu = nil
         }
     }
     
-    @objc private func showMainWindowFromMenu() {
-        requestWindowCreation()
+    // MARK: - NSMenuDelegate
+    
+    func menuDidClose(_ menu: NSMenu) {
+        // Ensure menu is detached after closing
+        if menu == rightClickMenu {
+            statusItem.menu = nil
+        }
     }
     
     @objc private func restartApp() {
-        // Get the path to the current application
-        let bundleURL = Bundle.main.bundleURL
-        let process = Process()
-        process.executableURL = URL(fileURLWithPath: "/usr/bin/open")
-        process.arguments = [bundleURL.path]
+        print("Restart app triggered")
         
+        // Use NSWorkspace for more reliable app launching
+        let workspace = NSWorkspace.shared
+        let bundleURL = Bundle.main.bundleURL
+        
+        // Launch new instance first, then quit current instance
         do {
-            try process.run()
-            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) {
-                NSApp.terminate(nil)
+            let configuration = NSWorkspace.OpenConfiguration()
+            configuration.activates = true
+            
+            workspace.openApplication(at: bundleURL,
+                                     configuration: configuration) { newApp, error in
+                if let error = error {
+                    print("Failed to launch new instance: \(error)")
+                    return
+                }
+                
+                print("Successfully launched new instance, terminating current instance...")
+                
+                // Give the new instance time to fully launch before terminating this one
+                DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                    NSApp.terminate(nil)
+                }
             }
-        } catch {
-            print("Failed to restart: \(error)")
         }
     }
     
