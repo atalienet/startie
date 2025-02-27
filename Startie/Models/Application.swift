@@ -1,16 +1,19 @@
-//
-//  Application.swift
-//  Startie
-//
-//  Created by u1 on 2/27/25.
-//
-
-
 import Foundation
 
-struct Application: Identifiable {
+struct Application: Identifiable, Codable, Equatable {
     var id = UUID()
     var name: String
-    var bundleIdentifier: String
     var path: String
+    var bundleIdentifier: String?
+    var isEnabled: Bool = true
+    
+    // Helper computed property to get the URL for the application
+    var url: URL {
+        URL(fileURLWithPath: path)
+    }
+    
+    // Equality check based on path
+    static func == (lhs: Application, rhs: Application) -> Bool {
+        return lhs.path == rhs.path
+    }
 }
