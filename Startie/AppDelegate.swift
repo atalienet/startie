@@ -22,6 +22,17 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             name: NSNotification.Name("CreateNewWindow"),
             object: nil
         )
+        
+        // THIS WAS MISSING: Schedule the login item refresh after 5 seconds
+        DispatchQueue.main.asyncAfter(deadline: .now() + 5.0) {
+            self.refreshLoginItem()
+        }
+    }
+    
+    private func refreshLoginItem() {
+        print("Refreshing login item 5 seconds after app launch")
+        // Call the new method that properly handles all scenarios
+        AutoLaunchManager.refreshLoginItemRegistration()
     }
     
     deinit {
