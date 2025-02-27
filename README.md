@@ -2,8 +2,10 @@
 
 ![Image](https://github.com/user-attachments/assets/31025fde-b02c-4498-8c6a-431166d959a6)
 
-⚠️ **Important Notice: This application is currently in its alpha phase and may contain numerous bugs and incomplete features. A stable release is anticipated in March.** ⚠️
- **Please be aware that this application is currently unsigned. This may result in limitations, including those related to building via Xcode. A formal release with appropriate signing is planned for March.** ## Overview
+⚠️ **Important Notice: This application is currently in its alpha phase and may contain numerous bugs and incomplete features. A stable release is anticipated in March.** 
+⚠️ **Please be aware that this application is currently unsigned. This may result in limitations, including those related to building via Xcode. A formal release with appropriate signing is planned for March.** 
+ 
+## Overview
 
 Startie revolutionises your workflow by allowing you to group applications and launch them collectively. Whether you favour manual activation or the convenience of automation, Startie enables you to configure your app groups to launch automatically upon system startup or user login.
 
