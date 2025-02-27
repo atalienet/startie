@@ -4,8 +4,10 @@ import SwiftUI
 class AppDelegate: NSObject, NSApplicationDelegate {
     
     func applicationDidFinishLaunching(_ notification: Notification) {
-        // Check if we need to launch any groups automatically
-        launchAutoStartGroups()
+        // Only launch auto-start groups if app was launched at login
+        if AutoLaunchManager.wasLaunchedAtLogin() {
+            launchAutoStartGroups()
+        }
     }
     
     private func launchAutoStartGroups() {

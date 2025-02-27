@@ -6,7 +6,10 @@ class AutoLaunchManager {
     
     // Keys for storing settings in UserDefaults
     private static let autoLaunchGroupsKey = "AutoLaunchGroups"
-    private static let autoLaunchDelaysKey = "AutoLaunchDelays" // New key for delays
+    private static let autoLaunchDelaysKey = "AutoLaunchDelays"
+    
+    // Launch argument to identify when app was started at login
+    static let launchedAtLoginArg = "--launched-at-login"
     
     static func setLaunchAtLogin(enabled: Bool, for group: AppGroup) {
         // Update the user defaults to remember which groups should auto-launch
@@ -16,25 +19,21 @@ class AutoLaunchManager {
         configureLoginItem(enabled: enabled)
     }
     
-    // New method to set delay for a group
     static func setLaunchDelay(seconds: Int, for group: AppGroup) {
         var delays = getLaunchDelays()
         delays[group.id.uuidString] = seconds
         UserDefaults.standard.set(delays, forKey: autoLaunchDelaysKey)
     }
     
-    // New method to get delay for a group
     static func getLaunchDelay(for groupId: UUID) -> Int {
         let delays = getLaunchDelays()
         return delays[groupId.uuidString] ?? 0
     }
     
-    // Helper to get all delays
     private static func getLaunchDelays() -> [String: Int] {
         return UserDefaults.standard.dictionary(forKey: autoLaunchDelaysKey) as? [String: Int] ?? [:]
     }
     
-    // Configure the app itself as a login item
     private static func configureLoginItem(enabled: Bool) {
         if #available(macOS 13.0, *) {
             Task {
@@ -43,8 +42,13 @@ class AutoLaunchManager {
                     
                     if enabled {
                         if service.status != .enabled {
+                            // Use the correct API for registering the app
                             try service.register()
                             print("Successfully registered app for login using SMAppService")
+                            
+                            // We can't directly pass launch arguments with SMAppService
+                            // Instead, we'll check a flag in UserDefaults when the app launches
+                            UserDefaults.standard.set(true, forKey: "LaunchAtLogin")
                         }
                     } else {
                         // Only unregister if no groups are set to launch at login
@@ -71,7 +75,6 @@ class AutoLaunchManager {
         }
     }
     
-    // Store which groups should auto-launch in UserDefaults
     private static func updateAutoLaunchGroups(group: AppGroup, enabled: Bool) {
         var groups = getAutoLaunchGroups()
         
@@ -88,14 +91,26 @@ class AutoLaunchManager {
         UserDefaults.standard.set(groups, forKey: autoLaunchGroupsKey)
     }
     
-    // Get the list of group IDs that should auto-launch
     static func getAutoLaunchGroups() -> [String] {
         return UserDefaults.standard.stringArray(forKey: autoLaunchGroupsKey) ?? []
     }
     
-    // Check if a specific group is set to auto-launch
     static func isGroupSetToAutoLaunch(groupId: UUID) -> Bool {
         let groups = getAutoLaunchGroups()
         return groups.contains(groupId.uuidString)
+    }
+    
+    // Check if app was launched at login
+    static func wasLaunchedAtLogin() -> Bool {
+        // Since we can't pass launch arguments with SMAppService in newer macOS versions,
+        // we'll use a UserDefaults flag to detect launch at login
+        if UserDefaults.standard.bool(forKey: "LaunchAtLogin") {
+            // Reset the flag after checking it
+            UserDefaults.standard.set(false, forKey: "LaunchAtLogin")
+            return true
+        }
+        
+        // Also check command line arguments for backward compatibility
+        return CommandLine.arguments.contains(launchedAtLoginArg)
     }
 }
