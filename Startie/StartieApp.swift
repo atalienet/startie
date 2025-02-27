@@ -10,6 +10,14 @@ struct StartieApp: App {
             ContentView()
                 .environmentObject(dataStore)
                 .frame(minWidth: 800, minHeight: 600)
+                .onAppear {
+                    // Store the content view in the AppDelegate
+                    appDelegate.contentView = AnyView(
+                        ContentView()
+                            .environmentObject(dataStore)
+                            .frame(minWidth: 800, minHeight: 600)
+                    )
+                }
         }
         .commands {
             CommandGroup(replacing: .newItem) {

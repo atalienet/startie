@@ -35,16 +35,6 @@
 			path = Startie;
 			sourceTree = "<group>";
 		};
-		77778B782D6F672F0003247C /* StartieTests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = StartieTests;
-			sourceTree = "<group>";
-		};
-		77778B822D6F672F0003247C /* StartieUITests */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = StartieUITests;
-			sourceTree = "<group>";
-		};
 /* End PBXFileSystemSynchronizedRootGroup section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -76,8 +66,6 @@
 			isa = PBXGroup;
 			children = (
 				77778B642D6F672E0003247C /* Startie */,
-				77778B782D6F672F0003247C /* StartieTests */,
-				77778B822D6F672F0003247C /* StartieUITests */,
 				77778B632D6F672E0003247C /* Products */,
 			);
 			sourceTree = "<group>";
@@ -130,9 +118,6 @@
 			dependencies = (
 				77778B772D6F672F0003247C /* PBXTargetDependency */,
 			);
-			fileSystemSynchronizedGroups = (
-				77778B782D6F672F0003247C /* StartieTests */,
-			);
 			name = StartieTests;
 			packageProductDependencies = (
 			);
@@ -152,9 +137,6 @@
 			);
 			dependencies = (
 				77778B812D6F672F0003247C /* PBXTargetDependency */,
-			);
-			fileSystemSynchronizedGroups = (
-				77778B822D6F672F0003247C /* StartieUITests */,
 			);
 			name = StartieUITests;
 			packageProductDependencies = (
