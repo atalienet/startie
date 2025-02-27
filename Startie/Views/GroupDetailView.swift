@@ -135,6 +135,7 @@ struct GroupDetailView: View {
 // A view for group settings
 struct GroupSettingsView: View {
     @Binding var group: AppGroup
+    @State private var launchAtLogin: Bool = false
     
     var body: some View {
         Form {
@@ -142,17 +143,12 @@ struct GroupSettingsView: View {
                 TextField("Group Name", text: $group.name)
                     .padding(.vertical, 4)
                 
-                Toggle("Launch at Login", isOn: Binding(
-                    get: {
-                        // Check if this group is set to auto-launch
-                        AutoLaunchManager.isGroupSetToAutoLaunch(groupId: group.id)
-                    },
-                    set: { newValue in
-                        // Update the group's auto-launch setting
+                Toggle("Launch at Login", isOn: $launchAtLogin)
+                    .onChange(of: launchAtLogin) { newValue in
+                        // When the toggle changes, update the login item settings
                         AutoLaunchManager.setLaunchAtLogin(enabled: newValue, for: group)
                     }
-                ))
-                .padding(.vertical, 4)
+                    .padding(.vertical, 4)
             }
             
             VStack(alignment: .leading, spacing: 10) {
@@ -167,6 +163,10 @@ struct GroupSettingsView: View {
             .padding(.top)
         }
         .padding()
+        .onAppear {
+            // Check if this group is set to auto-launch when the view appears
+            launchAtLogin = AutoLaunchManager.isGroupSetToAutoLaunch(groupId: group.id)
+        }
     }
 }
 

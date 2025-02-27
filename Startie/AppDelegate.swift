@@ -13,11 +13,8 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         let autoLaunchGroupIds = AutoLaunchManager.getAutoLaunchGroups()
         
         if !autoLaunchGroupIds.isEmpty {
-            // Get the DataStore
-            guard let dataStore = getDataStore() else {
-                print("Could not access DataStore for auto-launching groups")
-                return
-            }
+            // Create a new DataStore to load saved groups
+            let dataStore = DataStore()
             
             // Launch each group that's configured for auto-launch
             for groupIdString in autoLaunchGroupIds {
@@ -30,28 +27,5 @@ class AppDelegate: NSObject, NSApplicationDelegate {
                 }
             }
         }
-    }
-    
-    private func getDataStore() -> DataStore? {
-        // Get the DataStore from the SwiftUI environment
-        if let windowScene = NSApplication.shared.windows.first?.windowScene {
-            for window in windowScene.windows {
-                if let rootViewController = window.rootViewController,
-                   let hostingController = rootViewController as? NSHostingController<AnyView> {
-                    // Try to extract the DataStore from the environment
-                    // This is a bit of a hack, but works for most SwiftUI apps
-                    let mirror = Mirror(reflecting: hostingController.rootView)
-                    for child in mirror.children {
-                        if let dataStore = child.value as? DataStore {
-                            return dataStore
-                        }
-                    }
-                }
-            }
-        }
-        
-        // If we can't get it from the UI, create a temporary one to load data
-        let tempDataStore = DataStore()
-        return tempDataStore
     }
 }
