@@ -4,15 +4,34 @@ import AppKit
 
 class AutoLaunchManager {
     
-    // Key for storing autolaunch group IDs in UserDefaults
+    // Keys for storing settings in UserDefaults
     private static let autoLaunchGroupsKey = "AutoLaunchGroups"
+    private static let autoLaunchDelaysKey = "AutoLaunchDelays" // New key for delays
     
     static func setLaunchAtLogin(enabled: Bool, for group: AppGroup) {
-        // First, update the user defaults to remember which groups should auto-launch
+        // Update the user defaults to remember which groups should auto-launch
         updateAutoLaunchGroups(group: group, enabled: enabled)
         
-        // Then configure system login items
+        // Configure system login items
         configureLoginItem(enabled: enabled)
+    }
+    
+    // New method to set delay for a group
+    static func setLaunchDelay(seconds: Int, for group: AppGroup) {
+        var delays = getLaunchDelays()
+        delays[group.id.uuidString] = seconds
+        UserDefaults.standard.set(delays, forKey: autoLaunchDelaysKey)
+    }
+    
+    // New method to get delay for a group
+    static func getLaunchDelay(for groupId: UUID) -> Int {
+        let delays = getLaunchDelays()
+        return delays[groupId.uuidString] ?? 0
+    }
+    
+    // Helper to get all delays
+    private static func getLaunchDelays() -> [String: Int] {
+        return UserDefaults.standard.dictionary(forKey: autoLaunchDelaysKey) as? [String: Int] ?? [:]
     }
     
     // Configure the app itself as a login item

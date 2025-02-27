@@ -136,6 +136,10 @@ struct GroupDetailView: View {
 struct GroupSettingsView: View {
     @Binding var group: AppGroup
     @State private var launchAtLogin: Bool = false
+    @State private var launchDelay: Int = 0
+    
+    // Add this to track initial loading
+    @State private var hasAppeared = false
     
     var body: some View {
         Form {
@@ -143,12 +147,36 @@ struct GroupSettingsView: View {
                 TextField("Group Name", text: $group.name)
                     .padding(.vertical, 4)
                 
-                Toggle("Launch at Login", isOn: $launchAtLogin)
-                    .onChange(of: launchAtLogin) { newValue in
-                        // When the toggle changes, update the login item settings
-                        AutoLaunchManager.setLaunchAtLogin(enabled: newValue, for: group)
+                VStack(alignment: .leading, spacing: 8) {
+                    Toggle("Launch at Login", isOn: $launchAtLogin)
+                        .onChange(of: launchAtLogin) { newValue in
+                            // Avoid updating during view rendering by using async
+                            if hasAppeared {
+                                // When the toggle changes, update the login item settings
+                                AutoLaunchManager.setLaunchAtLogin(enabled: newValue, for: group)
+                            }
+                        }
+                    
+                    if launchAtLogin {
+                        HStack {
+                            Text("Delay (seconds):")
+                            Spacer()
+                            TextField("0", value: $launchDelay, formatter: NumberFormatter())
+                                .frame(width: 60)
+                                .textFieldStyle(RoundedBorderTextFieldStyle())
+                                .multilineTextAlignment(.trailing)
+                                .onChange(of: launchDelay) { newValue in
+                                    // Avoid updating during view rendering by using async
+                                    if hasAppeared {
+                                        // Store the delay in UserDefaults
+                                        AutoLaunchManager.setLaunchDelay(seconds: newValue, for: group)
+                                    }
+                                }
+                        }
+                        .padding(.leading, 20) // Indent to show it's related to the checkbox above
                     }
-                    .padding(.vertical, 4)
+                }
+                .padding(.vertical, 4)
             }
             
             VStack(alignment: .leading, spacing: 10) {
@@ -164,12 +192,17 @@ struct GroupSettingsView: View {
         }
         .padding()
         .onAppear {
-            // Check if this group is set to auto-launch when the view appears
+            // Initialize values first before marking as appeared
             launchAtLogin = AutoLaunchManager.isGroupSetToAutoLaunch(groupId: group.id)
+            launchDelay = AutoLaunchManager.getLaunchDelay(for: group.id)
+            
+            // Use async to break the update cycle
+            DispatchQueue.main.async {
+                hasAppeared = true
+            }
         }
     }
 }
-
 // A view to pick applications
 struct AppPickerView: View {
     @Environment(\.presentationMode) var presentationMode

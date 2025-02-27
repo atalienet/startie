@@ -20,12 +20,29 @@ class AppDelegate: NSObject, NSApplicationDelegate {
             for groupIdString in autoLaunchGroupIds {
                 if let groupId = UUID(uuidString: groupIdString),
                    let group = dataStore.appGroups.first(where: { $0.id == groupId }) {
-                    print("Auto-launching group: \(group.name)")
-                    LaunchManager.launchApplications(in: group) { successCount in
-                        print("Auto-launched \(successCount) of \(group.enabledApplications.count) applications in group \(group.name)")
+                    
+                    // Get the delay for this group
+                    let delay = AutoLaunchManager.getLaunchDelay(for: groupId)
+                    
+                    print("Auto-launching group: \(group.name) with delay: \(delay) seconds")
+                    
+                    if delay > 0 {
+                        // Launch with delay
+                        DispatchQueue.main.asyncAfter(deadline: .now() + TimeInterval(delay)) {
+                            self.launchGroup(group)
+                        }
+                    } else {
+                        // Launch immediately
+                        launchGroup(group)
                     }
                 }
             }
+        }
+    }
+    
+    private func launchGroup(_ group: AppGroup) {
+        LaunchManager.launchApplications(in: group) { successCount in
+            print("Auto-launched \(successCount) of \(group.enabledApplications.count) applications in group \(group.name)")
         }
     }
 }
