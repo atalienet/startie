@@ -109,7 +109,7 @@ struct GroupDetailView: View {
             }
         }
         .padding()
-        .onChange(of: group) { newGroup in
+        .onChange(of: group) { oldGroup, newGroup in
             dataStore.updateGroup(newGroup)
         }
     }
@@ -149,7 +149,7 @@ struct GroupSettingsView: View {
                 
                 VStack(alignment: .leading, spacing: 8) {
                     Toggle("Launch at Login", isOn: $launchAtLogin)
-                        .onChange(of: launchAtLogin) { newValue in
+                        .onChange(of: launchAtLogin) { oldValue, newValue in
                             // Avoid updating during view rendering by using async
                             if hasAppeared {
                                 // When the toggle changes, update the login item settings
@@ -165,7 +165,7 @@ struct GroupSettingsView: View {
                                 .frame(width: 60)
                                 .textFieldStyle(RoundedBorderTextFieldStyle())
                                 .multilineTextAlignment(.trailing)
-                                .onChange(of: launchDelay) { newValue in
+                                .onChange(of: launchDelay) { oldValue, newValue in
                                     // Avoid updating during view rendering by using async
                                     if hasAppeared {
                                         // Store the delay in UserDefaults
@@ -203,6 +203,7 @@ struct GroupSettingsView: View {
         }
     }
 }
+
 // A view to pick applications
 struct AppPickerView: View {
     @Environment(\.presentationMode) var presentationMode
