@@ -18,7 +18,6 @@ Startie revolutionises your workflow by allowing you to group applications and l
 * **Advanced Launch Conditions:**
     * Set groups to launch automatically on system startup or user login.
     * Implement delayed launch times for each group, relative to startup or login, facilitating a staggered and controlled application launch.
-* **Customisable Application Order:** Define the precise sequence in which applications within a group are launched, ensuring a smooth and predictable startup experience.
 
 ## System Requirements
 
@@ -27,9 +26,17 @@ Startie revolutionises your workflow by allowing you to group applications and l
 
 ## Installation Instructions
 
-1.  Clone this repository to your local machine.
-2.  Navigate to the `v0.1` tag within the repository.
-3.  Build the application using Xcode.
+1.  Navigate to the `v0.1` tag within the repository.
+2.  Download and extract the source code.
+3.  Open the project and build the application using Xcode.
+
+## How to use
+1. Launch the application.
+    1. If no window appears, click on the icon (a plain square) in the menu bar.
+2. Click the `+` button at the top of the left sidebar to add a group and specify its name.
+3. In the main area on the right, add applications to the group.
+4. Click the ▶ button to launch all applications in the group at once!
+5. If you want to set the application to launch at login or configure other settings, click the ⚙ icon at the top right.
 
 ## Development Roadmap
 
@@ -39,5 +46,10 @@ Startie revolutionises your workflow by allowing you to group applications and l
 * **Individual Application Delay Settings:** Implement the capability to set individual delays for applications within groups, offering granular control over launch timing.
 * **Customisable Application Group Icons:** Add the feature to assign custom icons to application groups, enhancing visual differentiation and quick identification.
 * **User friendly UI:** Improve the User interface to make the application more pleasing to use.
-* **Settings Persistence:** add the ability for the application to save its settings between uses.
-* **Error Handling:** add better error handling to the application.
+* **Settings Persistence:** Add the ability for the application to save its settings between uses.
+* **Error Handling:** Add better error handling to the application.
+
+## Specifications
+- Swift 
+- SwiftUI
+- Swift Data
