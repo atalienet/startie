@@ -1,3 +1,4 @@
+[日本語版を表示する](./README_ja.md)
 # Startie - App-laud Everytime!
 
 ![Image](https://github.com/user-attachments/assets/31025fde-b02c-4498-8c6a-431166d959a6)
